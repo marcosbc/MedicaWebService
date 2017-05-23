@@ -1,0 +1,29 @@
+<deployment xmlns="http://xml.apache.org/axis/wsdd/"
+            xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+    <service name="Medica" provider="java:RPC">
+
+        <parameter name="scope" value="application"/>
+        <parameter name="className" value="medicaws.Medica"/>
+        <parameter name="allowedMethods" value="*"/>
+
+        <beanMapping
+            qname="ns:Cuenta"
+            xmlns:ns="http://www.uc3m.es/WS/Medica"
+            languageSpecificType="java:medicaws.Cuenta"/>
+
+        <beanMapping
+            xmlns:ns="http://www.uc3m.es/WS/Medica"
+            qname="ns:Cita"
+            languageSpecificType="java:medicaws.Cita"/>
+
+        <arrayMapping
+            xmlns:ns="http://www.uc3m.es/WS/Medica"
+            encodingStyle="http://schemas.xmlsoap.org/soap/encoding/"
+            qname="ns:ArrayOfCuenta"
+            languageSpecificType="java:medicaws.Cuenta[]"
+            innerType="ns:Cuenta"/>
+
+    </service>
+
+</deployment>
