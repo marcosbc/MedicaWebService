@@ -12,345 +12,102 @@ import medicaws.*;
 
 public class MedicaClient
 {
-
-    static String endpoint = "http://localhost:8888/axis/services/Medica";
+    private static final int AXIS_PORT = 8888;
+    private static final String ENDPOINT = "http://localhost:" + AXIS_PORT + "/axis/services/Medica";
+    private static final String CMD_CLOSEACCOUNT = "/baja";
+    private static final String CMD_AVAILABLEAPPOINTMENTS = "/disponibles";
+    private static final String CMD_NEWAPPOINTMENT = "/nuevo";
+    private static final String CMD_GETDIAGNOSIS = "/info";
+    private static final String CMD_SETDIAGNOSIS = "/diagnosis";
+    private static final String CMD_EXIT = "/exit";
 
     public static void main(String [] args) throws Exception {
-
         String nombre;
         String password;
         Cuenta c = null;
-        Scanner input = new Scanner(System.in);
         boolean salir = false;
+        Scanner input = new Scanner(System.in);
 
-        //FASE DE LOGIN
-        c = login(); //Metodo Login no desarrollado aun.
-
-        //LOGIN FALLIDO (LOGUEO INEXISTENTE O CREADA EXISTENTE)
-        if (c == null){
+        // Fase de login
+        if ((c = login()) == null) {
             System.exit(1);
         }
 
-        //RESTO DEL PROGRAMA. BUCLE INFINITO DE LECTURA DE COMANDOS E IMPRESION DE AYUDA
-
+        // Bucle infinito de lectura de comandos e impresion de ayuda
         printHelp();
-        while (salir == false && input.hasNextLine()){
+        while (!salir && input.hasNextLine()){
             String line = input.nextLine().trim();
             String words[] = line.split(" ");
-        }
-
-        /************HASTA AQUÍ TENGO HECHO. NO QUIERO BORRAR
-          POR SI HAY CÓDIGO UTIL DETRÁS DE ESTO. POR EJEMPLO
-          LA INVOCACIÓN DE LOS MÉTODOS Y LOS QN***************/
-        if (args.length < 1){
-            System.out.println("Error en el paso de parametros");
-            System.out.println("Métodos disponibles: crearcuenta, cerrarcuenta, citasdisponibles, proximacita, reservarcita, verdiagnostico y hacerdiagnostico\nIntroducir cualquiera de ellos para recibir instrucciones específicas.");
-            System.exit(1);
-
-        }
-
-        if (args[0].equalsIgnoreCase("crearcuenta")) {
-            if (args.length == 3) {
-
-                nombre = args[1];
-                password = args[2];
-
-                titular = new Titular();
-                titular.setNombre(nombre);
-                titular.setDni(dni);
-
-                try {
-                    invoca_crear(numCuenta, titular);
-                    System.exit(0);
+            String command = words[0];
+            if (words.length >= 1 && !command.equals("") && command.startsWith("#")) {
+                // Dar usuario de baja
+                if (command.equals(CMD_CLOSEACCOUNT)) {
+                    invoca_cerrarCuenta(c);
                 }
-                catch (Exception ex) {
-                    System.out.println(ex);
-                    System.exit(1);
+                // Ver huecos disponibles para cita
+                else if (command.equals(CMD_AVAILABLEAPPOINTMENTS) && words.length == 1) {
+                    invoca_citasDisponibles(c);
                 }
-            } else {
-                System.out.println("Error en el paso de parametros");
-                System.out.println("Uso: medicaclient crearcuenta nombre password");
-                System.exit(1);
-            }
-        }
-
-
-        if (args[0].equalsIgnoreCase("cerrarcuenta")) {
-            if (args.length == 2) {
-                numCuenta = args[1];
-                try {
-                    invoca_cerrar(numCuenta);
-                    System.exit(0);
+                // Crear nueva cita
+                else if (command.equals(CMD_NEWAPPOINTMENT) && words.length == 2) {
+                    // TODO: Decidir rol
+                    invoca_setCita(c);
                 }
-                catch (Exception ex) {
-                    System.out.println(ex);
-                    System.exit(1);
+                // Obtener diagnosis por parte del paciente
+                else if (command.equals(CMD_GETDIAGNOSIS) && words.length == 1) {
+                    invoca_verDiagnostico(c);
+                }
+                // Obtener diagnosis por parte del medico
+                else if (command.equals(CMD_GETDIAGNOSIS) && words.length == 2) {
+                    invoca_verDiagnostico(c, words[1], words[2]);
+                }
+                // Actualizar diagnosis por parte del medico
+                else if (command.equals(CMD_SETDIAGNOSIS) && words.length > 2) {
+                    String[] diagnosis = Arrays.copyOfRange(words, 2, words.length - 1);
+                    invoca_setDiagnostico(c, words[1], diagnosis);
+                }
+                // Comando no reconocido: Imprimir ayuda
+                else {
+                    printHelp();
                 }
             }
-            else {
-                System.out.println("Error en el paso de parametros");
-                System.out.println("Uso: bancoclient cerrarcuenta numCuenta");
-                System.exit(1);
-            }
-        }
-
-        if (args[0].equalsIgnoreCase("ingresar")) {
-            if (args.length == 3) {
-                numCuenta = args[1];
-                cantidad = Integer.parseInt(args[2]);
-                try {
-                    invoca_ingresar(numCuenta, cantidad);
-                    System.exit(0);
-                }
-                catch (Exception ex) {
-                    System.out.println(ex);
-                    System.exit(1);
-                }
-            }
-            else {
-                System.out.println("Error en el paso de parametros");
-                System.out.println("Uso: bancoclient ingresar numCuenta cantidad");
-                System.exit(1);
-            }
-        }
-
-        if (args[0].equalsIgnoreCase("retirar")) {
-            if (args.length == 3) {
-                numCuenta = args[1];
-                cantidad = Integer.parseInt(args[2]);
-                try {
-                    invoca_retirar(numCuenta, cantidad);
-                    System.exit(0);
-                }
-                catch (Exception ex) {
-                    System.out.println(ex);
-                    System.exit(1);
-                }
-            }
-            else {
-                System.out.println("Error en el paso de parametros");
-                System.out.println("Uso: bancoclient retirar numCuenta cantidad");
-                System.exit(1);
-            }
-        }
-
-        if (args[0].equalsIgnoreCase("consultarcuentas")) {
-            if (args.length == 2) {
-                dni = args[1];
-                try {
-                    invoca_consultarcuentas(dni);
-                    System.exit(0);
-                }
-                catch (Exception ex) {
-                    System.out.println(ex);
-                    System.exit(1);
-                }
-            }
-            else {
-                System.out.println("Error en el paso de parametros");
-                System.out.println("Uso: bancoclient consultarcuentas dni");
-                System.exit(1);
-            }
-        }
-
-
-        if (args[0].equalsIgnoreCase("consultartitular")) {
-            if (args.length == 2) {
-                numCuenta = args[1];
-                try {
-                    invoca_consultartitular(numCuenta);
-                    System.exit(0);
-                }
-                catch (Exception ex) {
-                    System.out.println(ex);
-                    System.exit(1);
-                }
-            }
-            else {
-                System.out.println("Error en el paso de parametros");
-                System.out.println("Uso: bancoclient consultartitular numCuenta");
-                System.exit(1);
-            }
-        }
-
-
-        System.out.println("Error en el paso de parametros");
-        System.out.println("Métodos disponibles: crearcuenta, cerrarcuenta, ingresar, retirar, consultarcuentas y consultartitular\nIntroducir cualquiera de ellos para recibir instrucciones específicas.");
-        System.exit(1);
-    }
-
-
-    private static void invoca_crear(String numCuenta, Titular titular) {
-
-        try {
-
-            Service  service = new Service();
-            Call     call    = (Call) service.createCall();
-            QName    qn       = new QName( "http://www.uc3m.es/WS/Banco", "Titular" );
-
-
-            call.registerTypeMapping(bancows.Titular.class, qn,
-                    new org.apache.axis.encoding.ser.BeanSerializerFactory(bancows.Titular.class, qn),
-                    new org.apache.axis.encoding.ser.BeanDeserializerFactory(bancows.Titular.class, qn));
-
-            call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-            call.setOperationName("crearCuenta");
-            call.addParameter("numCuenta", XMLType.XSD_STRING, ParameterMode.IN);
-            call.addParameter("titular", qn, ParameterMode.IN);
-            call.setReturnType(XMLType.AXIS_VOID);
-            call.invoke(new Object [] { numCuenta,titular });
-
-        }
-        catch (Exception ex) {
-
-            System.out.println(ex);
-        }
-
-    }
-
-
-    private static void invoca_cerrar(String numCuenta) {
-
-        try {
-
-            Service  service = new Service();
-            Call     call    = (Call) service.createCall();
-
-            call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-            call.setOperationName("cerrarCuenta");
-            call.addParameter("numCuenta", XMLType.XSD_STRING, ParameterMode.IN);
-            call.setReturnType(XMLType.AXIS_VOID);
-            call.invoke(new Object [] { numCuenta });
-
-        }
-        catch (Exception ex) {
-
-            System.out.println(ex);
-        }
-
-    }
-
-
-    private static void invoca_ingresar(String numCuenta, int cantidad) {
-
-        try {
-
-            Service  service = new Service();
-            Call     call    = (Call) service.createCall();
-
-            call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-            call.setOperationName("ingresar");
-            call.addParameter("numCuenta", XMLType.XSD_STRING, ParameterMode.IN);
-            call.addParameter("cantidad", XMLType.XSD_INTEGER, ParameterMode.IN);
-            call.setReturnType(XMLType.AXIS_VOID);
-            call.invoke(new Object [] { numCuenta,cantidad });
-
-        }
-        catch (Exception ex) {
-
-            System.out.println(ex);
-        }
-
-    }
-
-
-    private static void invoca_retirar(String numCuenta, int cantidad) {
-
-        try {
-
-            Service  service = new Service();
-            Call     call    = (Call) service.createCall();
-
-            call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-            call.setOperationName("retirar");
-            call.addParameter("numCuenta", XMLType.XSD_STRING, ParameterMode.IN);
-            call.addParameter("cantidad", XMLType.XSD_INTEGER, ParameterMode.IN);
-            call.setReturnType(XMLType.AXIS_VOID);
-            call.invoke(new Object [] { numCuenta,cantidad });
-
-        }
-        catch (Exception ex) {
-
-            System.out.println(ex);
-        }
-
-    }
-
-
-    private static void invoca_consultarcuentas(String dni) {
-
-        try {
-
-            Service  service = new Service();
-            Call     call    = (Call) service.createCall();
-            QName    qn      = new QName( "http://www.uc3m.es/WS/Banco", "Cuenta" );
-            QName    qna     = new QName( "http://www.uc3m.es/WS/Agenda", "ArrayOfCuenta" );
-            QName    qnt     = new QName( "http://www.uc3m.es/WS/Banco", "Titular" );
-
-            call.registerTypeMapping(bancows.Titular.class, qn,
-                    new org.apache.axis.encoding.ser.BeanSerializerFactory(bancows.Titular.class, qn),
-                    new org.apache.axis.encoding.ser.BeanDeserializerFactory(bancows.Titular.class, qn));
-
-
-            call.registerTypeMapping(bancows.Cuenta.class, qn,
-                    new org.apache.axis.encoding.ser.BeanSerializerFactory(bancows.Cuenta.class, qn),
-                    new org.apache.axis.encoding.ser.BeanDeserializerFactory(bancows.Cuenta.class, qn));
-
-            call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-            call.setOperationName("cuentasDelTitular");
-            call.addParameter("dni", XMLType.XSD_STRING, ParameterMode.IN );
-
-            call.setReturnType(qna);
-
-            Cuenta obj[] = (Cuenta [])call.invoke(new Object [] { dni });
-
-            for (int k=0; k < obj.length; k++) {
-
-                Cuenta c = obj[k];
-
-                System.out.println("N. Cuenta: " + c.getNumCuenta());
-                System.out.println("Saldo: " + c.getBalance());
-                System.out.println("Nombre: " + c.getTitular().getNombre());
-                System.out.println("DNI: " + c.getTitular().getDni());
-            }
-
-        }
-        catch (Exception e) {
-
-            System.out.println(e);
+            // Caso de comando vacío: No hacer nada
         }
     }
 
-
-    private static void invoca_consultartitular(String numCuenta) {
-
-        try {
-
-            Service  service = new Service();
-            Call     call    = (Call) service.createCall();
-            QName    qn      = new QName( "http://www.uc3m.es/WS/Banco", "Titular" );
-
-            call.registerTypeMapping(bancows.Titular.class, qn,
-                    new org.apache.axis.encoding.ser.BeanSerializerFactory(bancows.Titular.class, qn),
-                    new org.apache.axis.encoding.ser.BeanDeserializerFactory(bancows.Titular.class, qn));
-
-            call.setTargetEndpointAddress( new java.net.URL(endpoint) );
-            call.setOperationName("titularDeCuenta");
-            call.addParameter("numCuenta", XMLType.XSD_STRING, ParameterMode.IN );
-
-            call.setReturnType(qn);
-
-            Titular t = (Titular)call.invoke(new Object [] { numCuenta });
-
-            System.out.println("Nombre: " + t.getNombre());
-            System.out.println("DNI: " + t.getDni());
-
-
-        }
-        catch (Exception e) {
-
-            System.out.println(e);
-        }
+    private static void printHelp() {
+        System.out.println(
+                "Comandos disponibles:\n\n" +
+                "  " + CMD_CLOSEACCOUNT + "\n\n" +
+                "  " + CMD_AVAILABLEAPPOINTMENTS + "\n\n" +
+                "  " + CMD_NEWAPPOINTMENT + "\n\n" +
+                "  " + CMD_GETDIAGNOSIS + "\n\n" +
+                "  " + CMD_SETDIAGNOSIS + "\n\n" +
+                "  " + CMD_EXIT + "\n\n"
+        );
     }
 
+    private static void invoca_cerrarCuenta(Cuenta c) {
+        System.out.println("cerrarCuenta: " + c);
+    }
+
+    private static void invoca_citasDisponibles(Cuenta c) {
+        System.out.println("citasDisponibles: " + c);
+    }
+
+    private static void invoca_setCita(Cuenta c, String fecha) {
+        System.out.println("setCita: " + c + ", " + fecha);
+    }
+
+    private static void invoca_verDiagnostico(Cuenta c) {
+        System.out.println("verDiagnostico: " + c);
+    }
+
+    private static void invoca_verDiagnostico(Cuenta c, String nombre) {
+        System.out.println("verDiagnostico: " + c + ", " + nombre);
+    }
+
+    private static void invoca_setDiagnostico(Cuenta c, String nombre, String diagnosis) {
+        System.out.println("setDiagnostico: " + c + ", " + nombre + ", \"" + diagnosis + "\"");
+    }
 }
