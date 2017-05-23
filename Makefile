@@ -44,4 +44,4 @@ client: jdk-version-check configure jar
 	mkdir -p $(BIN) && $(JAVAC) -cp "$(AXISCP)" -d $(BIN) $(CLI)/*.java
 
 clean:
-	rm -rf $(AXISHOME) $(SRVJAR) $(BIN)/*.class $(LIB)/$(SRVLIB)
+	rm -rf $(AXISHOME) $(SRVJAR) $(BIN)/*/*.class $(LIB)/$(SRVLIB)
