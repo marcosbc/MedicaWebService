@@ -20,10 +20,11 @@ public class Medica {
         citas = cargarCitas();
     }
 
-    public void crearCuenta(String nombre, String password) throws Exception {
+    public Cuenta crearCuenta(String nombre, String password) throws Exception {
+        Cuenta c = null;
         if (nombre != null && password != null){
             if (nombreExiste(nombre) == false){
-                Cuenta c = new Cuenta();
+                c = new Cuenta();
                 c.setNombre(nombre);
                 c.setPassword(password);
                 c.setProximaCita("");
@@ -37,6 +38,7 @@ public class Medica {
         }
         else
             throw new Exception("¡No se ha indicado nombre o ha habido un error de red!");
+        return c;
     }
 
     public boolean nombreExiste(String n){
@@ -54,23 +56,24 @@ public class Medica {
         return result;
     }
 
-    public void cerrarCuenta(String nombre, String password) throws Exception {
-        boolean result = false;
+    public void cerrarCuenta(Cuenta c) throws Exception {
+        boolean found = false;
         Cuenta c = null;
 
         for (int i=0; i < cuentas.size() && !result; i++) {
 
-            c = (Cuenta)cuentas.get(i);
+            iterador = (Cuenta) cuentas.get(i);
 
-            if (c.getNombre().equals(nombre) && c.getPassword().equals(password)) {
-                result = true;
+            if (iterador.equals(c)) {
+                found = true;
             }
         }
 
-        if (c == null || result == false){
+        if (!found) {
             throw new Exception("¡La cuenta no existe!");
         } else {
-            cuentas.remove(c);
+            cuentas.remove(iterador);
+            // TODO?
             guardarCuentas();
         }
     }

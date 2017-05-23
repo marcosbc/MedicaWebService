@@ -16,11 +16,14 @@ SRVCP=$(LIB)/jackson-databind-2.8.5.jar:$(LIB)/jackson-core-2.8.5.jar:$(LIB)/jac
 AXIS=$(CWD)/axis-bin-1_4.tar.gz
 AXISHOME=$(CWD)/axis-1_4
 AXISLIB=$(AXISHOME)/lib
-AXISCP=$(AXISLIB)/axis-ant.jar:$(AXISLIB)/commons-logging-1.0.4.jar:$(AXISLIB)/axis.jar:$(AXISLIB)/jaxrpc.jar:$(AXISLIB)/saaj.jar:$(AXISLIB)/commons-discovery-0.2.jar:$(AXISLIB)/log4j-1.2.8.jar:$(AXISLIB)/wsdl4j-1.5.1.jar:$(LIB)/mail.jar:$(LIB)/activation.jar:$(SRVJAR)
+AXISCP=$(AXISLIB)/axis-ant.jar:$(AXISLIB)/commons-logging-1.0.4.jar:$(AXISLIB)/axis.jar:$(AXISLIB)/jaxrpc.jar:$(AXISLIB)/saaj.jar:$(AXISLIB)/commons-discovery-0.2.jar:$(AXISLIB)/log4j-1.2.8.jar:$(AXISLIB)/wsdl4j-1.5.1.jar:$(LIB)/mail.jar:$(LIB)/activation.jar:$(SRVCP):$(SRVJAR)
 AXISWEB=$(AXISHOME)/webapps
 AXISPORT=8888
 
 all: client jar
+
+jdk-version-check:
+	@echo -e "javac 1.8\n$(shell javac -version 2>&1)" | sort -ct. -k1,1n -k2,2n -k3,3n 2>/dev/null || ( echo "Tu version de Java JDK es menor a 1.8.0" && exit 1 )
 
 axis: configure jar
 	cd $(AXISWEB) && $(JAVA) -cp "$(AXISCP)" org.apache.axis.transport.http.SimpleAxisServer -p $(AXISPORT)
@@ -32,13 +35,13 @@ configure:
 	tar xzf $(AXIS) -C $(CWD)
 
 server:
-	javac -cp "$(SRVCP)" -d $(LIB) $(SRV)/*.java
+	$(JAVAC) -cp "$(SRVCP)" -d $(LIB) $(SRV)/*.java
 
 jar: server
 	cd $(LIB) && jar cvf $(SRVJAR) $(SRVLIBDIR)/*.class
 
-client:
-	mkdir -p $(BIN) && $(JAVAC) -d $(BIN) $(CLI)/*.java
+client: jdk-version-check configure jar
+	mkdir -p $(BIN) && $(JAVAC) -cp "$(AXISCP)" -d $(BIN) $(CLI)/*.java
 
 clean:
 	rm -rf $(AXISHOME) $(SRVJAR) $(BIN)/*.class $(LIB)/$(SRVLIB)
