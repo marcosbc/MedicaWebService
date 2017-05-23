@@ -6,6 +6,7 @@ SRC=$(CWD)/src
 LIB=$(CWD)/lib
 # Cliente
 CLI=$(SRC)/medicaclient
+CLIBIN=$(BIN)/medicaclient
 # Servidor
 SRV=$(SRC)/medicaws
 SRVLIBDIR=medicaws
@@ -44,4 +45,4 @@ client: jdk-version-check configure jar
 	mkdir -p $(BIN) && $(JAVAC) -cp "$(AXISCP)" -d $(BIN) $(CLI)/*.java
 
 clean:
-	rm -rf $(AXISHOME) $(SRVJAR) $(BIN)/*/*.class $(SRVLIB)
+	rm -rf $(AXISHOME) $(SRVJAR) $(SRVLIB) $(CLIBIN)
