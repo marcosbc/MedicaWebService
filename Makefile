@@ -38,7 +38,7 @@ jar: server
 	cd $(LIB) && jar cvf $(SRVJAR) $(SRVLIBDIR)/*.class
 
 client:
-	mkdir -p $(BIN) && $(JAVAC) -d $(BIN) $(CLIDIR)/*.java
+	mkdir -p $(BIN) && $(JAVAC) -d $(BIN) $(CLI)/*.java
 
 clean:
 	rm -rf $(AXISHOME) $(SRVJAR) $(BIN)/*.class $(LIB)/$(SRVLIB)
