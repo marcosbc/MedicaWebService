@@ -7,25 +7,61 @@ import com.fasterxml.jackson.core.type.*;
 
 public class Medica {
     ObjectMapper JSONSerializer = null;
-    private Vector cuentas = null;
-    private Vector citas = null;
+    private List<Cuenta> cuentas = null;
+    private List<Cita> citas = null;
     File cuentasFile = null;
     File citasFile = null;
 
     public Medica() {
         // Cargar cuentas y citas
         // Esto emula el funcionamiento de una base de datos
-        // TODO: ES POSIBLE QUE TENGAMOS QUE CAMBIAR DE VECTOR A LIST SI LOS JSON NO CARGAN CORRECTAMENTE
         cuentas = cargarCuentas();
         citas = cargarCitas();
+    }
+
+    private Cuenta findCuenta (String name) {
+        for (Cuenta cuenta: cuentas) {
+            if (cuenta.getName().equals(name)) {
+                return cuenta;
+            }
+        }
+        return null;
+    }
+
+    private Cuenta findCuenta (Cuenta c) {
+        for (Cuenta cuenta: cuentas) {
+            if (cuenta.equals(c)) {
+                return cuenta;
+            }
+        }
+        return null;
+    }
+
+    private Cita findCita (String fecha) {
+        for (Cita c: citas) {
+            if (c.getFecha().equals(fecha)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    private void validarCuenta (Cuenta c) throws Exception {
+        Cuenta cuenta = findCuenta(c.getName());
+        if (cuenta == null) {
+            throw new Exception("\u00A1La cuenta no existe!");
+        }
+        if (!cuenta.equals(c)) {
+            throw new Exception("\u00A1Las credenciales no son correctas!");
+        }
     }
 
     public Cuenta crearCuenta(String nombre, String password) throws Exception {
         Cuenta c = null;
         if (nombre != null && password != null){
-            if (nombreExiste(nombre) == false){
+            if (findCuenta(nombre) == null) {
                 c = new Cuenta();
-                c.setNombre(nombre);
+                c.setName(nombre);
                 c.setPassword(password);
                 c.setProximaCita("");
                 // Solo se pueden crear cuentas de paciente. Las cuentas de médico las crea el admin
@@ -33,146 +69,116 @@ public class Medica {
                 cuentas.add(c);
                 guardarCuentas();
             } else {
-                throw new Exception("¡Ya existe una cuenta con el nombre indicado!");
+                throw new Exception("\u00A1Ya existe una cuenta con el nombre indicado!");
             }
         }
         else
-            throw new Exception("¡No se ha indicado nombre o ha habido un error de red!");
+            throw new Exception("\u00A1No se ha indicado nombre o ha habido un error de red!");
         return c;
     }
 
-    public boolean nombreExiste(String n){
-        boolean result = false;
+    public Cuenta loginCuenta(String nombre, String password) throws Exception {
         Cuenta c = null;
-
-        for (int i=0; i < cuentas.size() && !result; i++) {
-
-            c = (Cuenta)cuentas.get(i);
-
-            if (c.getNombre().equals(n)) {
-                result = true;
+        if (nombre != null && password != null) {
+            for(Cuenta cuenta: cuentas) {
+                if (cuenta.checkCredentials(nombre, password)) {
+                    c = cuenta;
+                    break;
+                }
             }
         }
-        return result;
+        return c;
     }
 
     public void cerrarCuenta(Cuenta c) throws Exception {
-        boolean found = false;
-        Cuenta c = null;
+        Cuenta cuenta = findCuenta(c);
+        validarCuenta(cuenta);
+        cuentas.remove(cuenta);
+        // TODO?
+        guardarCuentas();
+    }
 
-        for (int i=0; i < cuentas.size() && !result; i++) {
-
-            iterador = (Cuenta) cuentas.get(i);
-
-            if (iterador.equals(c)) {
-                found = true;
+    public String citasDisponibles(Cuenta c) throws Exception {
+        Cuenta cuenta = findCuenta(c);
+        validarCuenta(cuenta);
+        String citasDisponibles = new String();
+        // Popular variable resultado
+        for (Cita cita: citas) {
+            if (!cita.getTomada()) {
+                citasDisponibles += cita.getFecha() + "\n";
             }
         }
+        return citasDisponibles;
+    }
 
-        if (!found) {
-            throw new Exception("¡La cuenta no existe!");
-        } else {
-            cuentas.remove(iterador);
+    public void setCita(Cuenta c, String fecha) throws Exception {
+        Cuenta cuenta = findCuenta(c);
+        validarCuenta(cuenta);
+        Cita cita = findCita(fecha);
+        if (cita == null) {
+            throw new Exception("\u00A1No existen citas en la fecha indicada!");
+        }
+        if (cita.getTomada()) {
+            throw new Exception ("\u00A1La cita ya está tomada!");
+        }
+        else {
+            cita.setTomada(true);
+            // TODO?
+            guardarCitas();
+            // TODO: Comparar fechas?
+            cuenta.setProximaCita(cita.getFecha());
             // TODO?
             guardarCuentas();
         }
     }
 
-    public String citasDisponibles() {
-        Cita c = new Cita();
-        String s = new String();
-
-        for (int i=0; i < citas.size(); i++) {
-
-            c = (Cita)citas.get(i);
-
-            if (c.getTomada() == false) {
-                s += c.getFecha()+"\n";
-            }
-        }
-
-        return s;
-    }
-
-    public void setCita(Cuenta cliente, String fecha) throws Exception {
-        boolean result = false;	
-
-        for (int i=0; i < citas.size() && !result; i++) {
-            Cita c;
-            c = (Cita)citas.get(i);
-
-            if (c.getFecha().equals(fecha)) {
-                result = true;
-                if(c.getTomada() == false){
-                    if (nombreExiste(cliente.getNombre())){
-                        c.setTomada(true);
-                        guardarCitas();	
-                        cliente.setProximaCita(c.getFecha());
-                        guardarCuentas();
-
-                    } else {
-                        throw new Exception ("¡El cliente especificado no existe!");
-                    }
-
-                } else{
-                    throw new Exception ("¡La cita ya está tomada!");
-                }
-            }
-        }
-
-        if (result == false){
-            throw new Exception("¡No existen citas en la fecha indicada!");
-        }
-    }
-
-    public String citasPropias(Cuenta c){
-        return c.getProximaCita();
+    public String citasPropias(Cuenta c) throws Exception {
+        Cuenta cuenta = findCuenta(c);
+        validarCuenta(cuenta);
+        return cuenta.getProximaCita();
     }
 
     //Si eres cliente, solo ves tu propio diagnostico. Si eres médico, cualquiera
-    public String verDiagnostico(Cuenta c) {
-        return c.listToString(c.getDiagnostico());
+    public String verDiagnostico(Cuenta c) throws Exception {
+        Cuenta cuenta = findCuenta(c);
+        validarCuenta(cuenta);
+        return cuenta.listToString(c.getDiagnostico());
     }
 
     //Si eres cliente, solo ves tu propio diagnostico. Si eres médico, cualquiera
-    public String verDiagnostico(Cuenta c, String n) throws Exception{
-        boolean result = false;
-
-        if (c.getRol() == c.PACIENTE){
-            throw new Exception ("¡Solo los medicos pueden consultar historiales de otras personas!");
-        } else {
-            for (int i=0; i < cuentas.size() && !result; i++) {
-
-                c = (Cuenta)cuentas.get(i);
-
-                if (c.getNombre().equals(n)) {
-                    result = true;
-                }
-            }
-
-            if (result == true && c != null){
-                return c.listToString(c.getDiagnostico());	
-            } else {
-                throw new Exception("¡El paciente especificado no existe!");
-            }
+    public String verDiagnostico(Cuenta c, String n) throws Exception {
+        // Obtener medico de parametros
+        Cuenta medico = findCuenta(c);
+        validarCuenta(medico);
+        // Obtener paciente de parametros
+        Cuenta paciente = findCuenta(n);
+        validarCuenta(paciente);
+        if (medico.getRol() != Cuenta.MEDICO) {
+            throw new Exception ("\u00A1Solo los medicos pueden consultar historiales de otras personas!");
         }
+        return paciente.listToString(c.getDiagnostico());
     }
 
-    public void setDiagnostico(Cuenta c, String nombre, String diagnostico) throws Exception{
-
-        if (c.getRol() == c.PACIENTE){
-            throw new Exception ("¡Solo los medicos pueden realizar diagnosticos!");
-        } else {
-            c.setDiagnostico(diagnostico);
-            guardarCuentas();
+    public void setDiagnostico(Cuenta c, String n, String diagnostico) throws Exception {
+        // Obtener medico de parametros
+        Cuenta medico = findCuenta(c);
+        validarCuenta(medico);
+        // Obtener paciente de parametros
+        Cuenta paciente = findCuenta(n);
+        validarCuenta(paciente);
+        if (c.getRol() != Cuenta.MEDICO) {
+            throw new Exception ("\u00A1Solo los medicos pueden realizar diagnosticos!");
         }
+        paciente.setDiagnostico(diagnostico);
+        // TODO?
+        guardarCuentas();
     }
 
-    private Vector cargarCuentas(){
+    private List<Cuenta> cargarCuentas(){
         cuentasFile = new File ("./cuentas.json");
         JSONSerializer = new ObjectMapper();
         List<Cuenta> lc = new ArrayList<Cuenta>();
-        Vector v = new Vector();
+        List<Cuenta> v = new ArrayList<Cuenta>();
 
 
         try {
@@ -192,11 +198,11 @@ public class Medica {
         return v;
     }
 
-    private Vector cargarCitas(){
+    private List<Cita> cargarCitas(){
         citasFile = new File ("./citas.json");
         JSONSerializer = new ObjectMapper();
         List<Cita> lc = new ArrayList<Cita>();
-        Vector v = new Vector();
+        List<Cita> v = new ArrayList<Cita>();
 
         try {
             if (citasFile.exists() && (citasFile.length() != 0)) {
