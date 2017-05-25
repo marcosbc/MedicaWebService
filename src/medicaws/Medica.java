@@ -78,16 +78,14 @@ public class Medica {
     }
 
     public Cuenta loginCuenta(String nombre, String password) throws Exception {
-        Cuenta c = null;
         if (nombre != null && password != null) {
             for(Cuenta cuenta: cuentas) {
                 if (cuenta.checkCredentials(nombre, password)) {
-                    c = cuenta;
-                    break;
+                    return cuenta;
                 }
             }
         }
-        return c;
+        return null;
     }
 
     public void cerrarCuenta(Cuenta c) throws Exception {

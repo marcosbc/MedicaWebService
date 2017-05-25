@@ -163,7 +163,7 @@ public class MedicaClient
             else {
                 String username = line;
                 System.out.print("Contrase\u00f1a: ");
-                String password = System.console().readPassword().toString();
+                String password = new String(System.console().readPassword());
                 if ((c = invoca_loginCuenta(username, password)) != null) {
                     finLogin = true;
                 } else {
@@ -206,7 +206,7 @@ public class MedicaClient
             else {
                 String username = line;
                 System.out.print("Contrase\u00f1a: ");
-                String password = System.console().readPassword().toString();
+                String password = new String(System.console().readPassword());
                 c = invoca_crearCuenta(username, password);
                 // Si hubo error, se volvera al login
                 finCrear = true;
