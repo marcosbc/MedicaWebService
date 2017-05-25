@@ -38,7 +38,18 @@ public class Cuenta implements java.io.Serializable {
     // Los diagnosticos se agregan al final, nunca se borran
     // Como el historial de un paciente
     public void setDiagnostico (String diagnostico) {
-        this.diagnostico += "\n" + diagnostico;
+        this.diagnostico = diagnostico;
+    }
+    public void addDiagnostico (String diagnostico) {
+        boolean primerDiagnostico = false;
+        if (this.diagnostico.equals("")) {
+            primerDiagnostico = true;
+        }
+        this.diagnostico = new String(
+                (new Date()).toString() + "\n" +
+                diagnostico + "\n" +
+                (primerDiagnostico ? "" : "-----------------------------\n" + this.diagnostico)
+        );
     }
     public void setRol (int r){
         this.rol = r;

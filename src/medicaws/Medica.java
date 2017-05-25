@@ -29,9 +29,11 @@ public class Medica {
     }
 
     private Cuenta findCuenta (Cuenta c) {
-        for (Cuenta cuenta: cuentas) {
-            if (cuenta.equals(c)) {
-                return cuenta;
+        if (c != null) {
+            for (Cuenta cuenta: cuentas) {
+                if (cuenta.equals(c)) {
+                    return cuenta;
+                }
             }
         }
         return null;
@@ -47,7 +49,10 @@ public class Medica {
     }
 
     private void validarCuenta (Cuenta c) throws Exception {
-        Cuenta cuenta = findCuenta(c.getName());
+        Cuenta cuenta = null;
+        if (c != null) {
+            cuenta = findCuenta(c.getName());
+        }
         if (cuenta == null) {
             throw new Exception("\u00A1La cuenta no existe!");
         }
@@ -85,7 +90,7 @@ public class Medica {
 
     public void cerrarCuenta(Cuenta c) throws Exception {
         Cuenta cuenta = findCuenta(c);
-        validarCuenta(cuenta);
+        validarCuenta(c);
         cuentas.remove(cuenta);
         // Desasignar cita actual del usuario, si la hay
         Cita citaAnterior = findCita(cuenta.getProximaCita());
@@ -98,7 +103,7 @@ public class Medica {
 
     public String citasDisponibles(Cuenta c) throws Exception {
         Cuenta cuenta = findCuenta(c);
-        validarCuenta(cuenta);
+        validarCuenta(c);
         String citasDisponibles = new String();
         // Popular variable resultado
         for (Cita cita: citas) {
@@ -111,7 +116,7 @@ public class Medica {
 
     public void setCita(Cuenta c, String fecha) throws Exception {
         Cuenta cuenta = findCuenta(c);
-        validarCuenta(cuenta);
+        validarCuenta(c);
         Cita cita = findCita(fecha);
         if (cita == null) {
             throw new Exception("\u00A1No existen citas en la fecha indicada!");
@@ -135,14 +140,14 @@ public class Medica {
 
     public String citasPropias(Cuenta c) throws Exception {
         Cuenta cuenta = findCuenta(c);
-        validarCuenta(cuenta);
+        validarCuenta(c);
         return cuenta.getProximaCita();
     }
 
     //Si eres cliente, solo ves tu propio diagnostico. Si eres médico, cualquiera
     public String verDiagnostico(Cuenta c) throws Exception {
         Cuenta cuenta = findCuenta(c);
-        validarCuenta(cuenta);
+        validarCuenta(c);
         return cuenta.getDiagnostico();
     }
 
@@ -150,7 +155,7 @@ public class Medica {
     public String verDiagnostico(Cuenta c, String n) throws Exception {
         // Obtener medico de parametros
         Cuenta medico = findCuenta(c);
-        validarCuenta(medico);
+        validarCuenta(c);
         // Obtener paciente de parametros
         Cuenta paciente = findCuenta(n);
         validarCuenta(paciente);
@@ -163,14 +168,14 @@ public class Medica {
     public void setDiagnostico(Cuenta c, String n, String diagnostico) throws Exception {
         // Obtener medico de parametros
         Cuenta medico = findCuenta(c);
-        validarCuenta(medico);
+        validarCuenta(c);
         // Obtener paciente de parametros
         Cuenta paciente = findCuenta(n);
         validarCuenta(paciente);
         if (medico.getRol() != Cuenta.MEDICO) {
             throw new Exception ("\u00A1Solo los medicos pueden realizar diagnosticos!");
         }
-        paciente.setDiagnostico(diagnostico);
+        paciente.addDiagnostico(diagnostico);
         // TODO?
         guardarCuentas();
     }

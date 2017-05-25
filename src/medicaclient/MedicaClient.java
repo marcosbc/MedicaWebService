@@ -386,7 +386,6 @@ public class MedicaClient
     }
 
     private static void invoca_setDiagnostico(Cuenta c, String nombre, String diagnosis) throws Exception {
-        String diagnostico = null;
         try {
             Service  service  = new Service();
             Call     call     = (Call) service.createCall();
@@ -403,7 +402,7 @@ public class MedicaClient
             call.addParameter("diagnostico", XMLType.XSD_STRING, ParameterMode.IN);
             call.setReturnType(XMLType.XSD_STRING);
             // No retorna nada
-            call.invoke(new Object [] { c, nombre, diagnostico });
+            call.invoke(new Object [] { c, nombre, diagnosis });
         } catch (Exception e) {
             System.out.println(e);
         }
