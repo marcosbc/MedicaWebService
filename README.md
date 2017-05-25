@@ -6,13 +6,13 @@ sencilla implementación de un servidor y sistema gestor de perfiles
 clínicos.
 
 
-## Limpiar binarios compilados anteriores
+## Limpiar binarios compilados anteriores
 
 
     $ make clean
 
 
-## Compilación de cliente y servidor
+## Compilación de cliente y servidor
 
 
     $ make
