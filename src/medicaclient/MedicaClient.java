@@ -29,7 +29,7 @@ public class MedicaClient
     private static final String CMD_SETDIAGNOSIS = "/setDiagnosis";
     private static final String CMD_EXIT = "/exit";
 
-    public static void main(String [] args) throws Exception {
+    public static void main(String[] args) {
         String nombre;
         String password;
         Cuenta c = null;
@@ -272,7 +272,7 @@ public class MedicaClient
         return c;
     }
 
-    private static void invoca_cerrarCuenta(Cuenta c) throws Exception {
+    private static void invoca_cerrarCuenta(Cuenta c) {
         try {
             Service  service  = new Service();
             Call     call     = (Call) service.createCall();
@@ -293,7 +293,7 @@ public class MedicaClient
         }
     }
 
-    private static void invoca_citasDisponibles(Cuenta c) throws Exception {
+    private static void invoca_citasDisponibles(Cuenta c) {
         String citasDisponibles = null;
         try {
             Service  service  = new Service();
@@ -316,7 +316,7 @@ public class MedicaClient
         }
     }
 
-    private static void invoca_setCita(Cuenta c, String fecha) throws Exception {
+    private static void invoca_setCita(Cuenta c, String fecha) {
         try {
             Service  service  = new Service();
             Call     call     = (Call) service.createCall();
@@ -338,7 +338,7 @@ public class MedicaClient
         }
     }
 
-    private static void invoca_verDiagnostico(Cuenta c) throws Exception {
+    private static void invoca_verDiagnostico(Cuenta c) {
         String diagnostico = null;
         try {
             Service  service  = new Service();
@@ -361,7 +361,7 @@ public class MedicaClient
         }
     }
 
-    private static void invoca_verDiagnostico(Cuenta c, String nombre) throws Exception {
+    private static void invoca_verDiagnostico(Cuenta c, String nombre) {
         String diagnostico = null;
         try {
             Service  service  = new Service();
@@ -385,7 +385,7 @@ public class MedicaClient
         }
     }
 
-    private static void invoca_setDiagnostico(Cuenta c, String nombre, String diagnosis) throws Exception {
+    private static void invoca_setDiagnostico(Cuenta c, String nombre, String diagnosis) {
         try {
             Service  service  = new Service();
             Call     call     = (Call) service.createCall();
