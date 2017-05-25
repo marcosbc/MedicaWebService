@@ -60,12 +60,7 @@ public class Medica {
         Cuenta c = null;
         if (nombre != null && password != null){
             if (findCuenta(nombre) == null) {
-                c = new Cuenta();
-                c.setName(nombre);
-                c.setPassword(password);
-                c.setProximaCita("");
-                // Solo se pueden crear cuentas de paciente. Las cuentas de médico las crea el admin
-                c.setRol(c.PACIENTE);
+                c = new Cuenta(nombre, password);
                 cuentas.add(c);
                 guardarCuentas();
             } else {
@@ -92,6 +87,11 @@ public class Medica {
         Cuenta cuenta = findCuenta(c);
         validarCuenta(cuenta);
         cuentas.remove(cuenta);
+        // Desasignar cita actual del usuario, si la hay
+        Cita citaAnterior = findCita(cuenta.getProximaCita());
+        if (citaAnterior != null) {
+            citaAnterior.setTomada(false);
+        }
         // TODO?
         guardarCuentas();
     }
@@ -121,11 +121,14 @@ public class Medica {
         }
         else {
             cita.setTomada(true);
-            // TODO?
-            guardarCitas();
-            // TODO: Comparar fechas?
+            // Si ya habia una cita asignada, des-asignarla
+            Cita citaAnterior = findCita(cuenta.getProximaCita());
+            if (citaAnterior != null) {
+                citaAnterior.setTomada(false);
+            }
             cuenta.setProximaCita(cita.getFecha());
             // TODO?
+            guardarCitas();
             guardarCuentas();
         }
     }
@@ -140,7 +143,7 @@ public class Medica {
     public String verDiagnostico(Cuenta c) throws Exception {
         Cuenta cuenta = findCuenta(c);
         validarCuenta(cuenta);
-        return cuenta.listToString(c.getDiagnostico());
+        return cuenta.getDiagnostico();
     }
 
     //Si eres cliente, solo ves tu propio diagnostico. Si eres médico, cualquiera
@@ -154,7 +157,7 @@ public class Medica {
         if (medico.getRol() != Cuenta.MEDICO) {
             throw new Exception ("\u00A1Solo los medicos pueden consultar historiales de otras personas!");
         }
-        return paciente.listToString(c.getDiagnostico());
+        return paciente.getDiagnostico();
     }
 
     public void setDiagnostico(Cuenta c, String n, String diagnostico) throws Exception {
@@ -164,7 +167,7 @@ public class Medica {
         // Obtener paciente de parametros
         Cuenta paciente = findCuenta(n);
         validarCuenta(paciente);
-        if (c.getRol() != Cuenta.MEDICO) {
+        if (medico.getRol() != Cuenta.MEDICO) {
             throw new Exception ("\u00A1Solo los medicos pueden realizar diagnosticos!");
         }
         paciente.setDiagnostico(diagnostico);

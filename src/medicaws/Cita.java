@@ -1,29 +1,32 @@
 package medicaws;
 
 public class Cita implements java.io.Serializable {
-
     private int id;
     private String fecha;
     private boolean tomada;
-
-    public void setId(int i) {
-	this.id = i;
+    public Cita () {
     }
-    public void setFecha(String f) {
-	this.fecha = f;
+    public Cita (int id, String fecha) {
+        setId(id);
+        setFecha(fecha);
+        setTomada(false);
     }
-    public void setTomada(boolean b){
-	this.tomada = b;
+    public void setId (int id) {
+        this.id = id;
     }
-
-    public int getId() {
-	return this.id;
+    public void setFecha (String fecha) {
+        this.fecha = fecha;
     }
-    public String getFecha() {
-	return this.fecha;
+    public void setTomada (boolean tomada) {
+        this.tomada = tomada;
     }
-    public Boolean getTomada() {
-	return this.tomada;
+    public int getId () {
+        return id;
     }
-
+    public String getFecha () {
+        return fecha;
+    }
+    public Boolean getTomada () {
+        return tomada;
+    }
 }

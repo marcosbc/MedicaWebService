@@ -4,6 +4,7 @@ JAVAC=javac -encoding iso-8859-1
 BIN=$(CWD)/bin
 SRC=$(CWD)/src
 LIB=$(CWD)/lib
+RES=$(CWD)/res
 # Cliente
 CLISRCDIR=medicaclient
 CLI=$(SRC)/$(CLISRCDIR)
@@ -15,7 +16,7 @@ SRVLIB=$(LIB)/$(SRVSRCDIR)
 SRVJAR=$(LIB)/medicaws.jar
 SRVCP=$(LIB)/jackson-databind-2.8.5.jar:$(LIB)/jackson-core-2.8.5.jar:$(LIB)/jackson-annotations-2.8.5.jar
 # Configuracion de Java
-AXIS=$(CWD)/axis-bin-1_4.tar.gz
+AXIS=$(RES)/axis-bin-1_4.tar.gz
 AXISHOME=$(CWD)/axis-1_4
 AXISLIB=$(AXISHOME)/lib
 AXISCP=$(AXISLIB)/axis-ant.jar:$(AXISLIB)/commons-logging-1.0.4.jar:$(AXISLIB)/axis.jar:$(AXISLIB)/jaxrpc.jar:$(AXISLIB)/saaj.jar:$(AXISLIB)/commons-discovery-0.2.jar:$(AXISLIB)/log4j-1.2.8.jar:$(AXISLIB)/wsdl4j-1.5.1.jar:$(LIB)/mail.jar:$(LIB)/activation.jar:$(SRVCP):$(SRVJAR)
@@ -42,11 +43,14 @@ buildclient: jdk-version-check configure jar
 clean:
 	rm -rf $(AXISHOME) $(SRVJAR) $(SRVLIB) $(CLIBIN)
 
-axis:
+samples:
+	cp $(RES)/citas.json.example $(AXISWEB)/citas.json && cp $(RES)/cuentas.json.example $(AXISWEB)/cuentas.json
+
+axis: samples
 	cd $(AXISWEB) && $(JAVA) -cp "$(AXISCP)" org.apache.axis.transport.http.SimpleAxisServer -p $(AXISPORT)
 
 deploy:
-	cd $(AXISWEB) && cp $(CWD)/deploy.wsdd axis/ && $(JAVA) -cp "$(AXISCP)" org.apache.axis.client.AdminClient -p $(AXISPORT) axis/deploy.wsdd
+	cd $(AXISWEB) && cp $(RES)/deploy.wsdd axis/ && $(JAVA) -cp "$(AXISCP)" org.apache.axis.client.AdminClient -p $(AXISPORT) axis/deploy.wsdd
 
 client:
 	@$(JAVA) -cp "$(AXISCP):$(BIN)" $(CLISRCDIR)/MedicaClient

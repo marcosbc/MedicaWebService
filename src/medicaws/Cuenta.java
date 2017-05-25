@@ -3,39 +3,42 @@ package medicaws;
 import java.util.*;
 
 public class Cuenta implements java.io.Serializable {
+    // Constantes
     public static final int PACIENTE = 0;
     public static final int MEDICO   = 1;
-
+    // Parametros identificativos de la cuenta
     private String name;
     private String password;
-    private String proximaCita;
-
-    private List<String> diagnostico;
     private int rol;
-
+    // Parametros de utilidad al programa
+    private String proximaCita;
+    private String diagnostico;
     public Cuenta () {
-        diagnostico = new ArrayList<String>();
+        diagnostico = "";
     }
-
-    /************NO LIMITAMOS EL NOMBRE COMO EN EL CHAT PARA
-      PERMITIR NOMBRES COMPLETOS******************/
-    public void setName (String n) {
-        this.name = n;
+    public Cuenta (String name, String password) {
+        setName(name);
+        setPassword(password);
+        // Solo se pueden crear cuentas de pacientes, las cuentas de medico las crea el administrador
+        setRol(PACIENTE);
+        setProximaCita("");
+        diagnostico = "";
     }
-    public void setPassword (String pw){
-        this.password = pw;
+    // No se limita el nombre para permitir nombres completos
+    public void setName (String name) {
+        this.name = name;
     }
-
-    /**************EL CLIENTE NO TENDRÁ VARIAS CITAS, SOLO UNA
-      (LA PROXIMA CITA)***************************/
-    public void setProximaCita (String pc) {
-        this.proximaCita = pc;
+    public void setPassword (String password) {
+        this.password = password;
     }
-
-    /*********LOS DIAGNOSTICOS SE AÑADEN AL FINAL, NUNCA SE BORRAN, COMO EL 
-      HISTORIAL REAL DE UN PACIENTE**********/
-    public void setDiagnostico (String d) {
-        this.diagnostico.add(d);
+    // El cliente no tendra varias citas, solo una
+    public void setProximaCita (String proximaCita) {
+        this.proximaCita = proximaCita;
+    }
+    // Los diagnosticos se agregan al final, nunca se borran
+    // Como el historial de un paciente
+    public void setDiagnostico (String diagnostico) {
+        this.diagnostico += "\n" + diagnostico;
     }
     public void setRol (int r){
         this.rol = r;
@@ -49,17 +52,17 @@ public class Cuenta implements java.io.Serializable {
     public String getProximaCita () {
         return this.proximaCita;
     }
-    public List<String> getDiagnostico () {
+    public String getDiagnostico () {
         return this.diagnostico;
     }
     public int getRol () {
         return this.rol;
     }
+    // Convertir objeto List<String> a un objeto String
     public String listToString (List<String> ls) {
         String result = new String();
         Iterator<String> it = ls.iterator();
-
-        while (it.hasNext()){
+        while (it.hasNext()) {
             String s = it.next();
             result += s+"\n";
         }
