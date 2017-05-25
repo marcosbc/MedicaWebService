@@ -97,7 +97,6 @@ public class Medica {
         if (citaAnterior != null) {
             citaAnterior.setTomada(false);
         }
-        // TODO?
         guardarCuentas();
     }
 
@@ -132,7 +131,6 @@ public class Medica {
                 citaAnterior.setTomada(false);
             }
             cuenta.setProximaCita(cita.getFecha());
-            // TODO?
             guardarCitas();
             guardarCuentas();
         }
@@ -176,7 +174,6 @@ public class Medica {
             throw new Exception ("\u00A1Solo los medicos pueden realizar diagnosticos!");
         }
         paciente.addDiagnostico(diagnostico);
-        // TODO?
         guardarCuentas();
     }
 

@@ -65,7 +65,6 @@ public class MedicaClient
                 }
                 // Crear nueva cita
                 else if (command.equals(CMD_NEWAPPOINTMENT) && words.length == 2) {
-                    // TODO: Decidir rol
                     invoca_setCita(c, words[1]);
                 }
                 // Obtener diagnosis por parte del paciente
